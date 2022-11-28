@@ -1,0 +1,289 @@
+openapi: 3.0.3
+info:
+  title: "Book API"
+  description: "Moh. Alif Al Lukman"
+  version: 1.0.0
+servers:
+  - url: "localhost:8000"
+    description: "link project"
+tags:
+  - name: User
+  - name: Authentication
+paths:
+  /login:
+    post:
+      tags:
+        - "Authentication"
+      requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hp:
+                    type: string
+                  password:
+                    type: string
+                    format: password
+              example:
+                hp: 0812345
+                password: jery123
+      responses:
+        '200':
+          description: "succes login"
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ResponseObject"
+              example:
+                message: "success login"
+                data:
+                  nama: "Jerry"
+                  hp: 0812345
+                  token: "12jfoajfidaskudsghusdhfijijwiruijagjidf"
+
+        '400':
+          $ref: "#/components/responses/400"
+        '500':
+          $ref: "#/components/responses/500"
+  /user:
+    post:
+      tags:
+        - "User"
+      summary: "Untuk fitur register"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/UserObject"
+            example:
+              nama: "tono"
+              hp: "012345"
+              password: "halo123"
+      responses:
+        '201':
+          description: "success create user"
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ResponseObject"
+              example:
+                message: "success register user"
+                data:
+                  id: 2
+                  nama: "tono"
+                  hp: "012345"
+        '400':
+          $ref: "#/components/responses/400"
+        '500':
+          $ref: "#/components/responses/500"
+    get:
+      tags:
+        - "User"
+      summary: "Tampilkan data seluruh user"
+      responses:
+        '200':
+          description: "Succes get all user data"
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ResponseArray"
+              example:
+                message: "success get all user"
+                data:
+                  - id: 1
+                    nama: "Jerry"
+                    hp: "081234"
+                  - id: 2
+                    nama: "Tono"
+                    hp: "01234"
+        '400':
+          $ref: "#/components/responses/400"
+        '500':
+          $ref: "#/components/responses/500"
+  /user/{id}:
+    get:
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      tags:
+        - "User"
+      summary: "Tampilkan data user berdasarkan id yang dicari"
+      responses:
+        '200':
+          description: "Succes get user data"
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/UserObject"
+              example:
+                message: "success get user"
+                data:
+                  id: 1
+                  nama: "Jerry"
+                  hp: "081234"
+        '400':
+          $ref: "#/components/responses/400"
+        '500':
+          $ref: "#/components/responses/500"
+    delete:
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      tags:
+        - "User"
+      summary: Delete by id
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: id not found
+        '401':
+          description: Unauthorized
+  /user/update:
+    post:
+      tags:
+        - "User"
+      summary: "Untuk fitur update"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: "#/components/schemas/UserObject"
+            example:
+              nama: "tono"
+              hp: "012345"
+              password: "halo123"
+      responses:
+        '201':
+          description: "success update user"
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: "#/components/schemas/ResponseObject"
+              example:
+                message: "success update user"
+                data:
+                  id: 2
+                  nama: "tono"
+                  hp: "012345"
+        '400':
+          $ref: "#/components/responses/400"
+        '500':
+          $ref: "#/components/responses/500"
+  #   get:
+  #   put:
+  #   delete:
+
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    UserObject:
+      type: object
+      properties:
+        id:
+          type: integer
+        nama:
+          type: string
+        hp:
+          type: string
+        password:
+          type: string
+          format: password
+    BookObject:
+      type: object
+      properties:
+        id:
+          type: integer
+        judul:
+          type: string
+        pengarang:
+          type: string
+        pemilik:
+          type: integer
+        isAdult:
+          type: string
+          enum:
+            - yes
+            - no
+          
+    PinjamObject:
+      type: object
+      properties:
+        id:
+          type: integer
+        id_buku:
+          type: integer
+        id_peminjam:
+          type: integer
+        tanggal_pinjam:
+          type: string
+          format: date-time
+        tanggal_kembali:
+          type: string
+          format: date-time
+    ResponseObject:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+    ResponseArray:
+      type: object
+      properties:
+        message: 
+          type: string
+        data:
+          type: array
+  responses:
+    '400':
+      description: "error from user"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          example:
+            message: "cannot process data, invalid input from user"
+    '401':
+      description: Access token is missing or invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          example:
+            message: "unauthorized access"
+    '500':
+      description: "error from server"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          example:
+            message: "cannot process data, something wrong on server"
